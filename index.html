@@ -162,6 +162,67 @@
       width: 40px;
       margin-top: 20px;
     }
+
+    /* Footer styles */
+    #footer {
+      width: 100%;
+      background: white;
+      padding: 32px 0 16px 0;
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #footer div {
+      max-width: 400px;
+      text-align: center;
+    }
+    #footer img {
+      width: 120px;
+      margin-bottom: 12px;
+    }
+    #footer .description {
+      font-size: 16px;
+      color: #003366;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    #footer .donate-button {
+      display: inline-block;
+      background: #FFC907;
+      color: #003366;
+      font-weight: bold;
+      padding: 10px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-bottom: 10px;
+      transition: background 0.2s;
+    }
+    #footer .donate-button:hover {
+      background: #FFD84D;
+    }
+    #footer .copyright {
+      font-size: 12px;
+      color: #b3c6d9;
+      margin-top: 10px;
+    }
+    .footer-links {
+      color: #003366;
+      font-weight: 600;
+      margin: 8px 0;
+    }
+    .footer-links a {
+      color: #003366;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: #FFC907;
+    }
+    .dot {
+      margin: 0 5px;
+      color: #FFC907;
+    }
   </style>
 </head>
 <body>
@@ -405,5 +466,19 @@
 
     createBoard();
   </script>
+  <footer id="footer">
+    <div>
+      <img src="img/cw_logo_horizontal.png" alt="charity: water logo" />
+      <div class="description">charity: water is a nonprofit organization bringing clean and safe water to people around the world.</div>
+      <div class="footer-links">
+        <a href="https://www.charitywater.org/about" target="_blank">About</a>
+        <span class="dot">&middot;</span>
+        <a href="https://www.charitywater.org/donate" target="_blank" class="donate-button">Donate</a>
+        <span class="dot">&middot;</span>
+        <a href="https://www.charitywater.org/contact" target="_blank">Contact</a>
+      </div>
+      <div class="copyright">© charity: water 2025</div>
+    </div>
+  </footer>
 </body>
 </html>
