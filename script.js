@@ -30,24 +30,83 @@ function createBoard() {
   currentPlayer = 0;
   message.textContent = `${symbols[currentPlayer]}'s turn`;
   fact.textContent = '';
+  // Remove yellow background when not in level up mode
+  board.classList.remove('level-up');
   for (let i = 0; i < boardSize * boardSize; i++) {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.dataset.index = i;
-    cell.addEventListener('click', handleClick);
+    // Prevent clicking if cell is disabled
+    cell.addEventListener('click', function() {
+      if (!cell.classList.contains('disabled')) {
+        handleClick({ target: cell });
+      }
+    });
     board.appendChild(cell);
   }
-  // Update board grid style
   board.style.gridTemplateColumns = `repeat(${boardSize}, 80px)`;
   board.style.gridTemplateRows = `repeat(${boardSize}, 80px)`;
   board.style.width = `${80 * boardSize}px`;
   board.style.height = `${80 * boardSize}px`;
 }
 
+// This function toggles between 3x3 and 5x5 board when Level Up is clicked
+function levelUp() {
+  // If already in 5x5 mode, go back to 3x3 (toggle off)
+  if (boardSize === 5) {
+    boardSize = 3;
+    createBoard();
+    board.classList.remove('level-up'); // Remove yellow background
+    levelUpBtn.textContent = 'Level Up';
+  } else {
+    // Switch to 5x5 mode (toggle on)
+    boardSize = 5;
+    createBoard();
+    board.classList.add('level-up'); // Add yellow background
+    // Find the middle cell (for 5x5, index 12)
+    const cells = document.querySelectorAll('.cell');
+    const middleIndex = 12; // 5x5 grid, middle cell
+    if (cells[middleIndex]) {
+      cells[middleIndex].classList.add('disabled');
+    }
+    levelUpBtn.textContent = 'Level Down';
+  }
+}
+
+// Create a simple 3x3 board
+// Create 9 cells for the board
+for (let i = 0; i < 9; i++) {
+  const cell = document.createElement('div');
+  cell.classList.add('cell');
+  cell.dataset.index = i;
+  board.appendChild(cell);
+}
+
+// Add click behavior to the board
+board.addEventListener('click', (e) => {
+  const cell = e.target;
+  // Only allow clicking empty, enabled cells
+  if (!cell.classList.contains('cell') || cell.classList.contains('taken') || cell.classList.contains('disabled')) return;
+
+  cell.textContent = 'X'; // Mark the cell
+  cell.classList.add('taken'); // Mark as taken
+
+  disableRandomMove(); // Disable a random empty cell
+});
+
+// Disable one random empty cell after each move
+function disableRandomMove() {
+  // Find all empty and enabled cells
+  const emptyCells = Array.from(document.querySelectorAll('.cell:not(.taken):not(.disabled)'));
+  if (emptyCells.length > 1) { // Leave at least one clickable
+    const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    randomCell.classList.add('disabled');
+  }
+}
+
 function handleClick(event) {
   const index = event.target.dataset.index;
   if (gameState[index] || gameOver) return;
-
   gameState[index] = currentPlayer;
   event.target.textContent = symbols[currentPlayer];
 
@@ -57,12 +116,10 @@ function handleClick(event) {
     message.textContent = `${symbols[currentPlayer]} won!`;
     fact.textContent = getRandomFact();
     gameOver = true;
-
     if (scores[currentPlayer] === 3) {
       message.textContent = `${symbols[currentPlayer]} wins the game! 💧 Mission accomplished!`;
       fact.textContent += ' Visit charitywater.org to learn more.';
     }
-
   } else if (gameState.every(cell => cell !== null)) {
     message.textContent = "It's a draw! Everyone deserves water.";
     fact.textContent = getRandomFact();
@@ -74,11 +131,9 @@ function handleClick(event) {
 }
 
 function checkWin() {
-  // Helper to get cell value
   function getCell(row, col) {
     return gameState[row * boardSize + col];
   }
-  // Check rows
   for (let row = 0; row < boardSize; row++) {
     for (let col = 0; col <= boardSize - 3; col++) {
       let val = getCell(row, col);
@@ -87,7 +142,6 @@ function checkWin() {
       }
     }
   }
-  // Check columns
   for (let col = 0; col < boardSize; col++) {
     for (let row = 0; row <= boardSize - 3; row++) {
       let val = getCell(row, col);
@@ -96,7 +150,6 @@ function checkWin() {
       }
     }
   }
-  // Check diagonals (top-left to bottom-right)
   for (let row = 0; row <= boardSize - 3; row++) {
     for (let col = 0; col <= boardSize - 3; col++) {
       let val = getCell(row, col);
@@ -105,7 +158,6 @@ function checkWin() {
       }
     }
   }
-  // Check diagonals (top-right to bottom-left)
   for (let row = 0; row <= boardSize - 3; row++) {
     for (let col = 2; col < boardSize; col++) {
       let val = getCell(row, col);
@@ -131,29 +183,8 @@ function restartGame() {
   createBoard();
 }
 
-function levelUp() {
-  boardSize = 5; // Change board size to 5x5
-  createBoard(); // Re-create the board
-}
-
-// Only run this code after the DOM is loaded
 window.onload = function() {
-  // Add the Level Up button to the page
-  const levelUpBtn = document.createElement('button');
-  levelUpBtn.textContent = 'Level Up';
-  levelUpBtn.id = 'levelUp';
-  levelUpBtn.style.margin = '16px 0';
-  levelUpBtn.style.background = '#2E9DF7';
-  levelUpBtn.style.color = 'white';
-  levelUpBtn.style.fontWeight = 'bold';
-  levelUpBtn.style.fontSize = '16px';
-  levelUpBtn.style.padding = '10px 20px';
-  levelUpBtn.style.border = 'none';
-  levelUpBtn.style.borderRadius = '8px';
-  levelUpBtn.style.cursor = 'pointer';
+  const levelUpBtn = document.getElementById('levelUp');
   levelUpBtn.addEventListener('click', levelUp);
-  // Insert the button above the board
-  board.parentNode.insertBefore(levelUpBtn, board);
-
   createBoard();
 };

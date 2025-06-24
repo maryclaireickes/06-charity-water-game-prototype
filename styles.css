@@ -37,6 +37,11 @@ h1 {
   grid-template-rows: repeat(3, 100px);
   gap: 5px;
   margin: 20px 0;
+  background-color: white;
+}
+
+#board.level-up {
+  background-color: #FFF9C4 !important; /* Light yellow, always visible */
 }
 
 .cell {
