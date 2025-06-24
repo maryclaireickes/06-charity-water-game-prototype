@@ -91,7 +91,7 @@ function handleClick(event) {
     message.textContent = `${symbols[currentPlayer]} won!`;
     fact.textContent = getRandomFact();
     gameOver = true;
-
+    showOverlayFact(); // Show overlay when game ends
     if (scores[currentPlayer] === 3) {
       message.textContent = `${symbols[currentPlayer]} wins the game! 💧 Mission accomplished!`;
       fact.textContent += ' Visit charitywater.org to learn more.';
@@ -101,6 +101,7 @@ function handleClick(event) {
     message.textContent = "It's a draw! Everyone deserves water.";
     fact.textContent = getRandomFact();
     gameOver = true;
+    showOverlayFact(); // Show overlay on draw
   } else {
     // Switch player
     currentPlayer = 1 - currentPlayer;
@@ -110,6 +111,41 @@ function handleClick(event) {
       setTimeout(computerMove, 400); // Small delay for user experience
     }
   }
+}
+
+// Helper to show overlay with a fact and donate link
+function showOverlayFact() {
+  // If overlay doesn't exist, create it
+  let overlay = document.getElementById('factOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'factOverlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(0,0,0,0.7)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '9999';
+    document.body.appendChild(overlay);
+  }
+  // Pick a random fact
+  const factText = getRandomFact();
+  overlay.innerHTML = `
+    <div style="background: white; color: #003366; padding: 32px 24px; border-radius: 12px; max-width: 350px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.2); position: relative;">
+      <button id="closeOverlayBtn" style="position: absolute; top: 8px; right: 12px; background: none; border: none; font-size: 22px; color: #003366; cursor: pointer;">&times;</button>
+      <div style="font-size: 18px; margin-bottom: 18px;">${factText}</div>
+      <a href="https://www.charitywater.org/donate" target="_blank" style="display: inline-block; background: #FFC907; color: #003366; font-weight: bold; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 10px;">Donate to charity: water</a>
+    </div>
+  `;
+  // Add close button event
+  document.getElementById('closeOverlayBtn').onclick = function() {
+    overlay.style.display = 'none';
+  };
+  overlay.style.display = 'flex';
 }
 
 // Computer picks a random empty cell for X
