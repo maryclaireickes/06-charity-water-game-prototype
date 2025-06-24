@@ -28,32 +28,27 @@ function createBoard() {
   if (!window.boardSize) {
     window.boardSize = 3;
   }
-  const size = window.boardSize;
-  gameState = Array(size * size).fill(null);
+  // Only allow 3 or 5 for board size
+  let size = window.boardSize === 5 ? 5 : 3;
+  let columns = size;
+  let rows = size;
+  let totalCells = size * size;
+
+  // Always use grid for the board
+  board.style.display = 'grid';
+  board.style.gridTemplateColumns = `repeat(${columns}, 100px)`;
+  board.style.gridTemplateRows = `repeat(${rows}, 100px)`;
+  board.style.width = `${columns * 100}px`;
+  board.style.height = `${rows * 100}px`;
+
+  gameState = Array(totalCells).fill(null);
   gameOver = false;
-  currentPlayer = (size === 5) ? 1 : 0; // X goes first in 5x5
   message.textContent = `${symbols[currentPlayer]}'s turn`;
   fact.textContent = '';
 
-  // Set up the grid for the board
-  if (size === 5) {
-    board.style.display = 'flex';
-    board.style.flexWrap = 'wrap';
-    board.style.width = '500px';
-    board.style.height = '500px';
-    board.style.alignItems = 'flex-start';
-    board.style.justifyContent = 'flex-start';
-  } else {
-    board.style.display = 'grid';
-    board.style.gridTemplateColumns = `repeat(3, 100px)`;
-    board.style.gridTemplateRows = `repeat(3, 100px)`;
-    board.style.width = '300px';
-    board.style.height = '300px';
-  }
-
   // Create all cells
   let cellsArr = [];
-  for (let i = 0; i < size * size; i++) {
+  for (let i = 0; i < totalCells; i++) {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.dataset.index = i;
@@ -62,9 +57,21 @@ function createBoard() {
     cellsArr.push(cell);
   }
 
-  // If 5x5, place an X in the middle cell and block it
+  // If 5x5, place an X in the middle cell and block it, and block the four corners
   if (size === 5) {
     const middle = 12;
+    cellsArr[middle].classList.add('blocked');
+    cellsArr[middle].textContent = symbols[1]; // X
+    gameState[middle] = 1;
+    // Block the four corners
+    const corners = [0, 4, 20, 24];
+    for (let i = 0; i < corners.length; i++) {
+      cellsArr[corners[i]].classList.add('blocked');
+    }
+  }
+  // If 3x3, place an X in the middle cell and block it
+  if (size === 3) {
+    const middle = 4;
     cellsArr[middle].classList.add('blocked');
     cellsArr[middle].textContent = symbols[1]; // X
     gameState[middle] = 1;
@@ -85,6 +92,7 @@ function createBoard() {
 
 function handleClick(event) {
   const index = event.target.dataset.index;
+  // Only allow click if cell is empty and game is not over
   if (gameState[index] || gameOver) return;
 
   gameState[index] = currentPlayer;
@@ -138,6 +146,35 @@ function restartGame() {
   }
   currentPlayer = 0;
   createBoard();
+}
+
+// Remove old Level Up button code and use the toggle switch logic
+const levelUpToggle = document.getElementById('levelUpToggle');
+const levelUpLabel = document.getElementById('levelUpLabel');
+if (levelUpToggle && levelUpLabel) {
+  levelUpToggle.addEventListener('change', function() {
+    if (levelUpToggle.checked) {
+      window.boardSize = 5;
+      levelUpLabel.textContent = 'Level Down';
+      currentPlayer = 1; // X goes first in 5x5
+    } else {
+      window.boardSize = 3;
+      levelUpLabel.textContent = 'Level Up';
+      currentPlayer = 0; // 💧 goes first in 3x3
+    }
+    createBoard();
+  });
+}
+
+// Set initial board size based on toggle state
+if (levelUpToggle && levelUpToggle.checked) {
+  window.boardSize = 5;
+  currentPlayer = 1;
+  levelUpLabel.textContent = 'Level Down';
+} else {
+  window.boardSize = 3;
+  currentPlayer = 0;
+  levelUpLabel.textContent = 'Level Up';
 }
 
 createBoard();
