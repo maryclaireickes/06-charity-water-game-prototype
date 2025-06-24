@@ -28,8 +28,8 @@ function createBoard() {
   if (!window.boardSize) {
     window.boardSize = 3;
   }
-  // Only allow 3 or 5 for board size
-  let size = window.boardSize === 5 ? 5 : 3;
+  // Only allow 3 or 4 for board size
+  let size = window.boardSize === 4 ? 4 : 3;
   let columns = size;
   let rows = size;
   let totalCells = size * size;
@@ -57,25 +57,7 @@ function createBoard() {
     cellsArr.push(cell);
   }
 
-  // If 5x5, place an X in the middle cell and block it, and block the four corners
-  if (size === 5) {
-    const middle = 12;
-    cellsArr[middle].classList.add('blocked');
-    cellsArr[middle].textContent = symbols[1]; // X
-    gameState[middle] = 1;
-    // Block the four corners
-    const corners = [0, 4, 20, 24];
-    for (let i = 0; i < corners.length; i++) {
-      cellsArr[corners[i]].classList.add('blocked');
-    }
-  }
-  // If 3x3, place an X in the middle cell and block it
-  if (size === 3) {
-    const middle = 4;
-    cellsArr[middle].classList.add('blocked');
-    cellsArr[middle].textContent = symbols[1]; // X
-    gameState[middle] = 1;
-  }
+  // No blocked corners for 4x4 or 3x3
 
   // Add click event and append all cells
   for (let i = 0; i < cellsArr.length; i++) {
@@ -87,6 +69,11 @@ function createBoard() {
       }
     });
     board.appendChild(cell);
+  }
+
+  // If Level Up is on (4x4), X (computer) goes first
+  if (size === 4 && currentPlayer === 1) {
+    setTimeout(computerMove, 400); // Let computer make the first move
   }
 }
 
@@ -115,12 +102,119 @@ function handleClick(event) {
     fact.textContent = getRandomFact();
     gameOver = true;
   } else {
+    // Switch player
     currentPlayer = 1 - currentPlayer;
+    message.textContent = `${symbols[currentPlayer]}'s turn`;
+    // If it's X's turn (computer), make a random move
+    if (currentPlayer === 1 && !gameOver) {
+      setTimeout(computerMove, 400); // Small delay for user experience
+    }
+  }
+}
+
+// Computer picks a random empty cell for X
+function computerMove() {
+  // Find all empty cells
+  let emptyIndexes = [];
+  for (let i = 0; i < gameState.length; i++) {
+    if (gameState[i] === null) {
+      emptyIndexes.push(i);
+    }
+  }
+  // If there are no empty cells, return
+  if (emptyIndexes.length === 0) return;
+  // Pick a random empty cell
+  const randomIndex = emptyIndexes[Math.floor(Math.random() * emptyIndexes.length)];
+  // Find the cell div
+  const cellDivs = document.querySelectorAll('.cell');
+  const cell = Array.from(cellDivs).find(c => c.dataset.index == randomIndex);
+  if (cell && !cell.classList.contains('blocked')) {
+    // Mark the move for X
+    gameState[randomIndex] = 1;
+    cell.textContent = symbols[1];
+    // Check for win or draw after computer move
+    if (checkWin()) {
+      scores[1]++;
+      updateScore();
+      message.textContent = `${symbols[1]} won!`;
+      fact.textContent = getRandomFact();
+      gameOver = true;
+      if (scores[1] === 3) {
+        message.textContent = `${symbols[1]} wins the game! 💧 Mission accomplished!`;
+        fact.textContent += ' Visit charitywater.org to learn more.';
+      }
+      return;
+    } else if (gameState.every(cell => cell !== null)) {
+      message.textContent = "It's a draw! Everyone deserves water.";
+      fact.textContent = getRandomFact();
+      gameOver = true;
+      return;
+    }
+    // Switch back to player
+    currentPlayer = 0;
     message.textContent = `${symbols[currentPlayer]}'s turn`;
   }
 }
 
 function checkWin() {
+  // If 4x4, check for 3 in a row
+  if (gameState.length === 16) {
+    // Check all possible 3-in-a-row combinations for 4x4
+    // Horizontal
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 2; col++) {
+        let idx = row * 4 + col;
+        if (
+          gameState[idx] !== null &&
+          gameState[idx] === gameState[idx + 1] &&
+          gameState[idx] === gameState[idx + 2]
+        ) {
+          return true;
+        }
+      }
+    }
+    // Vertical
+    for (let col = 0; col < 4; col++) {
+      for (let row = 0; row < 2; row++) {
+        let idx = row * 4 + col;
+        if (
+          gameState[idx] !== null &&
+          gameState[idx] === gameState[idx + 4] &&
+          gameState[idx] === gameState[idx + 8]
+        ) {
+          return true;
+        }
+      }
+    }
+    // Diagonal (top-left to bottom-right)
+    for (let row = 0; row < 2; row++) {
+      for (let col = 0; col < 2; col++) {
+        let idx = row * 4 + col;
+        if (
+          gameState[idx] !== null &&
+          gameState[idx] === gameState[idx + 5] &&
+          gameState[idx] === gameState[idx + 10]
+        ) {
+          return true;
+        }
+      }
+    }
+    // Diagonal (top-right to bottom-left)
+    for (let row = 0; row < 2; row++) {
+      for (let col = 2; col < 4; col++) {
+        let idx = row * 4 + col;
+        if (
+          gameState[idx] !== null &&
+          gameState[idx] === gameState[idx + 3] &&
+          gameState[idx] === gameState[idx + 6]
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  // 3x3 win logic (classic)
   const winCombos = [
     [0,1,2], [3,4,5], [6,7,8],
     [0,3,6], [1,4,7], [2,5,8],
@@ -154,9 +248,9 @@ const levelUpLabel = document.getElementById('levelUpLabel');
 if (levelUpToggle && levelUpLabel) {
   levelUpToggle.addEventListener('change', function() {
     if (levelUpToggle.checked) {
-      window.boardSize = 5;
+      window.boardSize = 4;
       levelUpLabel.textContent = 'Level Down';
-      currentPlayer = 1; // X goes first in 5x5
+      currentPlayer = 1; // X goes first in 4x4
     } else {
       window.boardSize = 3;
       levelUpLabel.textContent = 'Level Up';
@@ -168,7 +262,7 @@ if (levelUpToggle && levelUpLabel) {
 
 // Set initial board size based on toggle state
 if (levelUpToggle && levelUpToggle.checked) {
-  window.boardSize = 5;
+  window.boardSize = 4;
   currentPlayer = 1;
   levelUpLabel.textContent = 'Level Down';
 } else {
