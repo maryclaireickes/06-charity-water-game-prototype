@@ -9,6 +9,7 @@ let currentPlayer = 0;
 let gameState = Array(9).fill(null);
 let gameOver = false;
 let scores = [0, 0];
+let boardSize = 3;
 
 const facts = [
   "771 million people in the world live without clean water.",
@@ -24,17 +25,23 @@ function getRandomFact() {
 
 function createBoard() {
   board.innerHTML = '';
-  gameState = Array(9).fill(null);
+  gameState = Array(boardSize * boardSize).fill(null);
   gameOver = false;
+  currentPlayer = 0;
   message.textContent = `${symbols[currentPlayer]}'s turn`;
   fact.textContent = '';
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < boardSize * boardSize; i++) {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.dataset.index = i;
     cell.addEventListener('click', handleClick);
     board.appendChild(cell);
   }
+  // Update board grid style
+  board.style.gridTemplateColumns = `repeat(${boardSize}, 80px)`;
+  board.style.gridTemplateRows = `repeat(${boardSize}, 80px)`;
+  board.style.width = `${80 * boardSize}px`;
+  board.style.height = `${80 * boardSize}px`;
 }
 
 function handleClick(event) {
@@ -67,17 +74,47 @@ function handleClick(event) {
 }
 
 function checkWin() {
-  const winCombos = [
-    [0,1,2], [3,4,5], [6,7,8],
-    [0,3,6], [1,4,7], [2,5,8],
-    [0,4,8], [2,4,6]
-  ];
-  return winCombos.some(combo => {
-    const [a, b, c] = combo;
-    return gameState[a] !== null &&
-           gameState[a] === gameState[b] &&
-           gameState[a] === gameState[c];
-  });
+  // Helper to get cell value
+  function getCell(row, col) {
+    return gameState[row * boardSize + col];
+  }
+  // Check rows
+  for (let row = 0; row < boardSize; row++) {
+    for (let col = 0; col <= boardSize - 3; col++) {
+      let val = getCell(row, col);
+      if (val !== null && val === getCell(row, col + 1) && val === getCell(row, col + 2)) {
+        return true;
+      }
+    }
+  }
+  // Check columns
+  for (let col = 0; col < boardSize; col++) {
+    for (let row = 0; row <= boardSize - 3; row++) {
+      let val = getCell(row, col);
+      if (val !== null && val === getCell(row + 1, col) && val === getCell(row + 2, col)) {
+        return true;
+      }
+    }
+  }
+  // Check diagonals (top-left to bottom-right)
+  for (let row = 0; row <= boardSize - 3; row++) {
+    for (let col = 0; col <= boardSize - 3; col++) {
+      let val = getCell(row, col);
+      if (val !== null && val === getCell(row + 1, col + 1) && val === getCell(row + 2, col + 2)) {
+        return true;
+      }
+    }
+  }
+  // Check diagonals (top-right to bottom-left)
+  for (let row = 0; row <= boardSize - 3; row++) {
+    for (let col = 2; col < boardSize; col++) {
+      let val = getCell(row, col);
+      if (val !== null && val === getCell(row + 1, col - 1) && val === getCell(row + 2, col - 2)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 function updateScore() {
@@ -94,4 +131,29 @@ function restartGame() {
   createBoard();
 }
 
-createBoard();
+function levelUp() {
+  boardSize = 5; // Change board size to 5x5
+  createBoard(); // Re-create the board
+}
+
+// Only run this code after the DOM is loaded
+window.onload = function() {
+  // Add the Level Up button to the page
+  const levelUpBtn = document.createElement('button');
+  levelUpBtn.textContent = 'Level Up';
+  levelUpBtn.id = 'levelUp';
+  levelUpBtn.style.margin = '16px 0';
+  levelUpBtn.style.background = '#2E9DF7';
+  levelUpBtn.style.color = 'white';
+  levelUpBtn.style.fontWeight = 'bold';
+  levelUpBtn.style.fontSize = '16px';
+  levelUpBtn.style.padding = '10px 20px';
+  levelUpBtn.style.border = 'none';
+  levelUpBtn.style.borderRadius = '8px';
+  levelUpBtn.style.cursor = 'pointer';
+  levelUpBtn.addEventListener('click', levelUp);
+  // Insert the button above the board
+  board.parentNode.insertBefore(levelUpBtn, board);
+
+  createBoard();
+};
