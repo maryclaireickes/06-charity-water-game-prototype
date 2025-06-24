@@ -14,11 +14,8 @@ Secondary Colors:
 
 */
 body {
-  /* Add a dark blue overlay on top of the background image using a linear-gradient */
-  background: linear-gradient(rgba(0,51,102,0.7), rgba(0,51,102,0.7)), url('img/cw_Selects_16x9_4.jpg') no-repeat bottom center;
-  background-size: cover;
-  background-color: #e0f7fa;
   font-family: sans-serif;
+  background-color: #e0f7fa;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -28,7 +25,7 @@ body {
 }
 
 h1 {
-  color: #ffffff;
+  color: #003366;
 }
 
 #board {
@@ -37,11 +34,6 @@ h1 {
   grid-template-rows: repeat(3, 100px);
   gap: 5px;
   margin: 20px 0;
-  background-color: white;
-}
-
-#board.level-up {
-  background-color: #FFF9C4 !important; /* Light yellow, always visible */
 }
 
 .cell {
@@ -78,66 +70,4 @@ h1 {
 
 #restart:hover {
   background-color: #004d40;
-}
-
-/* Footer styles */
-#footer {
-  width: 100%;
-  background: #fff;
-  padding: 32px 0 16px 0;
-  margin-top: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-top: 1px solid #e0e0e0;
-}
-#footer div {
-  max-width: 400px;
-  text-align: center;
-}
-#footer img {
-  width: 120px;
-  margin-bottom: 12px;
-}
-#footer .description {
-  font-size: 16px;
-  color: #003366;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-#footer .footer-links {
-  margin-bottom: 10px;
-}
-#footer .footer-links a {
-  color: #003366;
-  text-decoration: none;
-  font-weight: 600;
-  margin: 0 8px;
-  font-size: 15px;
-  transition: color 0.2s;
-}
-#footer .footer-links a:hover {
-  color: #FFC907;
-}
-#footer .footer-links .donate-button {
-  background: #FFC907;
-  color: #003366;
-  border-radius: 6px;
-  padding: 8px 18px;
-  font-weight: bold;
-  margin: 0 8px;
-  transition: background 0.2s;
-}
-#footer .footer-links .donate-button:hover {
-  background: #FFD84D;
-}
-#footer .footer-links .dot {
-  color: #b3c6d9;
-  margin: 0 4px;
-  font-size: 18px;
-}
-#footer .copyright {
-  font-size: 12px;
-  color: #b3c6d9;
-  margin-top: 10px;
 }

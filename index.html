@@ -119,7 +119,7 @@
       display: none;
     }
 
-    #restart, #levelUp {
+    #restart {
       background-color: #003366;
       color: white;
       padding: 12px 20px;
@@ -128,26 +128,11 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s;
-      /* Make both buttons the same size and style */
-      min-width: 140px;
-      width: 160px; /* Set a fixed width for both buttons */
-      height: 48px; /* Set a fixed height for both buttons */
-      box-sizing: border-box;
-      margin: 0; /* Remove margin so flexbox works well */
-    }
-
-    #restart:hover, #levelUp:hover {
-      background-color: #0056b3;
-    }
-
-    #button-row {
-      display: flex; /* Use flexbox to put buttons on the same line */
-      flex-direction: row; /* Make sure buttons are in a row */
-      justify-content: center;
-      align-items: center;
-      gap: 10px; /* Space between buttons */
       margin-top: 10px;
+    }
+
+    #restart:hover {
+      background-color: #003366;
     }
 
     #scoreboard-container {
@@ -242,31 +227,18 @@
     #levelUp {
       background-color: #007bff;
       color: white;
-      padding: 10px 20px;
+      padding: 12px 20px; /* Match #restart button */
       font-size: 16px;
       font-weight: bold;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin: 10px 0;
+      margin-top: 10px; /* Match #restart button */
       transition: background-color 0.3s;
     }
 
     #levelUp:hover {
       background-color: #0056b3;
-    }
-
-    .disabled {
-      background-color: #b3c6d9 !important;
-      pointer-events: none;
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    /* New style for level-up background */
-    .level-up {
-      background-color: rgba(255, 204, 0, 0.2) !important; /* Light yellow */
-      border-color: #ffcc00 !important; /* Darker yellow for border */
     }
   </style>
 </head>
@@ -279,70 +251,11 @@
     <!-- Move fact above the board and hide it by default -->
     <div id="fact" class="hidden"></div>
     <div id="board"></div>
-    <!-- Put both buttons in a row for beginners -->
-    <div id="button-row">
-      <!-- Both buttons are inside this flex container, so they appear on the same line using flexbox -->
+    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
       <button id="restart" onclick="restartGame()">Restart Game</button>
       <button id="levelUp">Level Up</button>
     </div>
   </div>
-  <script>
-    // Set the initial board size
-    let boardSize = 3; // Start with a 3x3 grid
-    // Get the Level Up button
-    const levelUpBtn = document.getElementById('levelUp');
-    // Get the board element
-    const board = document.getElementById('board');
-    // Function to create the board
-    function createBoard() {
-      board.innerHTML = '';
-      // Set the grid style for the board
-      board.style.gridTemplateColumns = `repeat(${boardSize}, 80px)`;
-      board.style.gridTemplateRows = `repeat(${boardSize}, 80px)`;
-      board.style.width = `${80 * boardSize}px`;
-      board.style.height = `${80 * boardSize}px`;
-      // Remove yellow background by default
-      board.classList.remove('level-up');
-      // Create the cells
-      for (let i = 0; i < boardSize * boardSize; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'cell';
-        cell.dataset.index = i;
-        // Add a click event for each cell
-        cell.addEventListener('click', function() {
-          // Only allow click if not disabled
-          if (!cell.classList.contains('disabled')) {
-            cell.textContent = '💧';
-          }
-        });
-        board.appendChild(cell);
-      }
-    }
-    // Make Level Up a toggle button
-    levelUpBtn.addEventListener('click', function() {
-      if (boardSize === 5) {
-        // Switch back to 3x3
-        boardSize = 3;
-        createBoard();
-        board.classList.remove('level-up');
-        levelUpBtn.textContent = 'Level Up';
-      } else {
-        // Switch to 5x5
-        boardSize = 5;
-        createBoard();
-        board.classList.add('level-up'); // Add yellow background
-        // Find the middle cell (for 5x5, index 12)
-        const cells = document.querySelectorAll('.cell');
-        const middleIndex = 12; // 5x5 grid, middle cell
-        if (cells[middleIndex]) {
-          cells[middleIndex].classList.add('disabled');
-        }
-        levelUpBtn.textContent = 'Level Down';
-      }
-    });
-    // Create the initial board (3x3)
-    createBoard();
-  </script>
   <!-- Add a container around the scoreboard for better styling -->
   <div id="scoreboard-container">
     <div id="scoreboard">
@@ -352,6 +265,16 @@
   </div>
 
   <script>
+    // Get the Level Up button after it is in the DOM
+    const levelUpBtn = document.getElementById('levelUp');
+    // When the button is clicked, show a simple message
+    levelUpBtn.addEventListener('click', function() {
+      // This is just a placeholder for now
+      alert('Level Up coming soon!');
+    });
+  </script>
+  <script>
+    const board = document.getElementById('board');
     const message = document.getElementById('message');
     const fact = document.getElementById('fact');
     const scoreWater = document.getElementById('scoreWater');
@@ -375,7 +298,6 @@
     }
 
     function createBoard() {
-      const board = document.getElementById('board');
       board.innerHTML = '';
       gameState = Array(9).fill(null);
       gameOver = false;
